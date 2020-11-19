@@ -97,7 +97,7 @@ if __name__ == "__main__":
     print(model)  # net architecture
     # Loss and optimizer
     criterion = nn.MSELoss(reduction='mean')
-    optimizer = torch.optim.RMSprop(model.parameters(), lr=LR)
+    optimizer = torch.optim.Adam(model.parameters(), lr=LR)#LR=0.001
     val_MSE = []
     for epoch in range(EPOCH):  # loop over the dataset multiple times
         model.train()
@@ -113,6 +113,7 @@ if __name__ == "__main__":
             train_loss += loss.item()
             if step % 10 == 9:
                 print('[%d,%5d] loss: %.3f' % (epoch + 1, (step + 1)*10, train_loss / 100))
+                #Batch size=10,所以每训练100个数据输出一次loss
                 train_loss = 0.0
         model.eval()
         val_loss = 0.
