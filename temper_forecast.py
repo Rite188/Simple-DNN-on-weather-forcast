@@ -65,21 +65,24 @@ if __name__ == "__main__":
     df = pd.read_csv('weather_data.csv').set_index('date')
     # X will be a pandas dataframe of all columns except meantempm
     X = df[[col for col in df.columns if col != 'meantempm']].values
-    # Standardize X
-    XMean = np.nanmean(X, axis=0)
-    XStd = np.nanstd(X, axis=0)
-    X = (X - XMean) / XStd
-
-    XMin = np.nanmin(X, axis=0)
-    XMax = np.nanmax(X, axis=0)
-    X = (X - XMin) / (XMax - XMin)
-
     # y will be a pandas series of the meantempm
     y = df['meantempm'].values.astype(np.float)
     # split data into training set and a temporary set using sklearn.model_selection.traing_test_split
-    X_train, X_tmp, y_train, y_tmp = train_test_split(X, y, test_size=0.2, random_state=23)
-    # take the remaining 20% of data in X_tmp, y_tmp and split them evenly
-    X_test, X_val, y_test, y_val = train_test_split(X_tmp, y_tmp, test_size=0.5, random_state=23)
+    X_train_val, X_test, y_train_val, y_test = train_test_split(X, y, test_size=0.1, random_state=23)
+    # Standardize X_train_val
+    XMean = np.nanmean(X_train_val, axis=0)
+    XStd = np.nanstd(X_train_val, axis=0)
+    X_train_val = (X_train_val - XMean) / XStd
+    XMin = np.nanmin(X_train_val, axis=0)
+    XMax = np.nanmax(X_train_val, axis=0)
+    X_train_val = (X_train_val - XMin) / (XMax - XMin)
+    # split train_val into training set and val set using sklearn.model_selection.traing_test_split
+    X_train, X_val, y_train, y_val = train_test_split(X_train_val, y_train_val, test_size=1/9, random_state=23)
+    X_test=(X_test - XMean) / XStd
+    XMin = np.nanmin(X_test, axis=0)
+    XMax = np.nanmax(X_test, axis=0)
+    X_test = (X_test - XMin) / (XMax - XMin)
+
     print("Training instances   {}, Training features   {}".format(X_train.shape[0], X_train.shape[1]))
     print("Validation instances {}, Validation features {}".format(X_val.shape[0], X_val.shape[1]))
     print("Testing instances    {}, Testing features    {}".format(X_test.shape[0], X_test.shape[1]))
